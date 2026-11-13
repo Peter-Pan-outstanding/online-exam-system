@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO 基类：封装 JDBC 常用操作（查询、更新、插入返回主键）。
+ * DAO 基类：封装 JDBC 常用操作（查询、更新、批量更新、插入返回主键）。
  * 所有连接通过 try-with-resources 自动关闭，避免资源泄漏。
  */
 public abstract class BaseDao {
@@ -68,6 +68,20 @@ public abstract class BaseDao {
                 }
             }
             throw new SQLException("未能获取自增主键");
+        }
+    }
+
+    /**
+     * 批量更新。
+     */
+    protected int[] batchUpdate(String sql, List<Object[]> paramsList) throws SQLException {
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (Object[] params : paramsList) {
+                bindParams(ps, params);
+                ps.addBatch();
+            }
+            return ps.executeBatch();
         }
     }
 

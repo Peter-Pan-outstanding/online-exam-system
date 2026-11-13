@@ -17,14 +17,7 @@ public final class AuthConsole {
             try {
                 if ("1".equals(action)) {
                     User user = service.login(ConsoleKit.readLine("用户名："), ConsoleKit.readLine("密码："));
-                    if (user.isTeacher()) {
-                        System.out.println("教师登录成功：" + user.getRealName());
-                    } else if ("STUDENT".equals(user.getRole())) {
-                        System.out.println("学生登录成功：" + user.getRealName());
-                    } else {
-                        throw new com.group.exam.common.BizException("不支持的用户角色");
-                    }
-                    System.out.println("本阶段已完成身份验证，退出登录返回首页。");
+                    AppController.run(user);
                 } else if ("2".equals(action)) {
                     User user = service.register(ConsoleKit.readLine("用户名："), ConsoleKit.readLine("密码（至少6位）："),
                             ConsoleKit.readLine("真实姓名："), ConsoleKit.readLine("学号："));
