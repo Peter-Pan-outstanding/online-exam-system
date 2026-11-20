@@ -5,6 +5,7 @@ import com.group.exam.common.Constants;
 import com.group.exam.entity.ExamPaper;
 import com.group.exam.entity.ExamSession;
 import com.group.exam.entity.User;
+import com.group.exam.entity.AnswerRecord;
 import com.group.exam.service.PaperService;
 import com.group.exam.service.StatService;
 
@@ -32,8 +33,9 @@ public final class StudentConsole {
             System.out.println(" 1. 查看可考试卷");
             System.out.println(" 2. 开始考试");
             System.out.println(" 3. 我的成绩");
+            System.out.println(" 4. 错题本");
             System.out.println(" 0. 退出登录");
-            int choice = ConsoleKit.readIntRange("请选择：", 0, 3);
+            int choice = ConsoleKit.readIntRange("请选择：", 0, 4);
             switch (choice) {
                 case 1:
                     listPublishedPapers();
@@ -43,6 +45,9 @@ public final class StudentConsole {
                     break;
                 case 3:
                     showMyScores(student);
+                    break;
+                case 4:
+                    showWrongBook(student);
                     break;
                 case 0:
                     System.out.println("已退出登录。");
@@ -100,5 +105,24 @@ public final class StudentConsole {
             return "超时收卷";
         }
         return status;
+    }
+
+    private static void showWrongBook(User student) {
+        List<AnswerRecord> list = STAT_SERVICE.wrongQuestions(student.getUserId());
+        if (list.isEmpty()) {
+            System.out.println("错题本为空，继续保持！");
+            return;
+        }
+        System.out.println("\n========== 错题本 ==========");
+        System.out.println("共 " + list.size() + " 道错题：");
+        for (int i = 0; i < list.size(); i++) {
+            AnswerRecord r = list.get(i);
+            System.out.println((i + 1) + ". " + r.getQuestionContent());
+            System.out.println("   你的答案：" + (r.getUserAnswer().isEmpty() ? "（未作答）" : r.getUserAnswer())
+                    + " | 正确答案：" + r.getCorrectAnswer());
+            System.out.println("   解析：" + (r.getAnalysis() == null || r.getAnalysis().isEmpty()
+                    ? "（暂无解析）" : r.getAnalysis()));
+        }
+        System.out.println("===========================");
     }
 }

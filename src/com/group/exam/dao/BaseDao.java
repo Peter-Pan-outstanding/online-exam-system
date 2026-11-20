@@ -81,7 +81,15 @@ public abstract class BaseDao {
                 bindParams(ps, params);
                 ps.addBatch();
             }
-            return ps.executeBatch();
+            conn.setAutoCommit(false);
+            try {
+                int[] counts = ps.executeBatch();
+                conn.commit();
+                return counts;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
         }
     }
 

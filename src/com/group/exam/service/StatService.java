@@ -4,10 +4,15 @@ import com.group.exam.common.BizException;
 import com.group.exam.dao.DaoFactory;
 import com.group.exam.dao.ExamSessionDao;
 import com.group.exam.entity.ExamSession;
+import com.group.exam.entity.AnswerRecord;
+import com.group.exam.dao.AnswerRecordDao;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -15,6 +20,7 @@ import java.util.Map;
  */
 public class StatService {
 
+    private final AnswerRecordDao answerRecordDao = DaoFactory.answerRecordDao();
     private final ExamSessionDao sessionDao = DaoFactory.examSessionDao();
 
     /**
@@ -98,5 +104,18 @@ public class StatService {
 
     private double round1(double value) {
         return Math.round(value * 10) / 10.0;
+    }
+
+    public List<AnswerRecord> wrongQuestions(int studentId) {
+        try {
+            List<AnswerRecord> all = answerRecordDao.findWrongByStudent(studentId);
+            Map<Integer, AnswerRecord> latest = new LinkedHashMap<Integer, AnswerRecord>();
+            for (AnswerRecord r : all) {
+                latest.put(r.getQuestionId(), r);
+            }
+            return new ArrayList<AnswerRecord>(latest.values());
+        } catch (SQLException e) {
+            throw new BizException("查询错题本失败：" + e.getMessage(), e);
+        }
     }
 }

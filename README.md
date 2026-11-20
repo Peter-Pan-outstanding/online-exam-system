@@ -1,6 +1,6 @@
 # 在线考试系统（Java SE 控制台）
 
-当前提交范围：截至 2026-11-13 的课程阶段，Java SE + MySQL 8.0 + JDBC。
+当前提交范围：截至 2026-11-20 的课程阶段，Java SE + MySQL 8.0 + JDBC。
 
 ## 已包含
 
@@ -17,7 +17,7 @@
 
 1. 安装 JDK 8 或更新版本，配置 java、javac 到 PATH，并准备 MySQL 8.0。
 2. 克隆本仓库，在项目根目录操作。
-3. 在 MySQL 客户端执行 `source /你的路径/sql/exam_db.sql`。脚本会删除并重建 exam_db，请用于课程测试数据库。
+3. 在 MySQL 客户端执行 `source /你的路径/sql/exam_db.sql`。脚本会删除并重建 exam_db，请用于课程测试数据库。随后执行 sql/upgrade_v2.sql，一次性增加 V2 规划字段。已有 V1 数据库只执行升级脚本，保留原数据。
 4. 修改根目录 db.properties，填写本机数据库用户名和密码。
 5. 自行下载 MySQL Connector/J 8.0.33，将驱动放到 lib/mysql-connector-java-8.0.33.jar。编译不依赖驱动，连接数据库时需要。
 6. Windows 执行 compile.bat，再执行 run.bat；IDE 中可将 src 标记为源码目录，添加驱动，运行 com.group.exam.Main，工作目录设为项目根目录。
@@ -31,3 +31,8 @@
 11 月 6 日：数据库、DAO 基础设施、登录注册及题目/会话模型设计。
 11 月 10 日：题库管理、试卷管理及事务化组卷。
 11 月 13 日：在线考试、自动判分、成绩查询，打通 V1 核心流程。
+
+
+11 月 17 日至 20 日新增题目解析、按学生去重的错题本、UTF-8 文本批量导入及逐行错误汇总，导入格式见 questions_import_sample.txt。
+考试中输入 V 查看已答数量与未答题号，J 跳转修改，S 交卷并进行两次确认。
+upgrade_v2.sql 同步包含 11 月 17 日规划的 max_attempts / shuffle 数据库字段，对应业务实现按后续进度推进。

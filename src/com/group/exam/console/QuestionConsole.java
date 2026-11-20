@@ -28,8 +28,9 @@ public final class QuestionConsole {
             System.out.println(" 2. 查看题目");
             System.out.println(" 3. 修改题目");
             System.out.println(" 4. 删除题目");
+            System.out.println(" 5. 批量导入题目");
             System.out.println(" 0. 返回上级");
-            int choice = ConsoleKit.readIntRange("请选择：", 0, 4);
+            int choice = ConsoleKit.readIntRange("请选择：", 0, 5);
             switch (choice) {
                 case 1:
                     addQuestion(teacher);
@@ -42,6 +43,9 @@ public final class QuestionConsole {
                     break;
                 case 4:
                     deleteQuestion();
+                    break;
+                case 5:
+                    importQuestions(teacher);
                     break;
                 case 0:
                     return;
@@ -82,8 +86,9 @@ public final class QuestionConsole {
         }
         double score = ConsoleKit.readInt("分值：");
         int difficulty = ConsoleKit.readIntRange("难度（1-3）：", 1, 3);
+        String analysis = ConsoleKit.readLine("解析（可为空）：");
 
-        Question question = QuestionFactory.create(type, content, options, answer, score, difficulty);
+        Question question = QuestionFactory.create(type, content, options, answer, score, difficulty, analysis);
         int id = QUESTION_SERVICE.add(question, teacher.getUserId());
         System.out.println("新增成功，题目编号：" + id);
     }
@@ -105,6 +110,18 @@ public final class QuestionConsole {
             System.out.printf(" %-5d %-8s %-5.1f %-4d %-4s %s%n",
                     q.getQuestionId(), q.typeName(), q.getScore(), q.getDifficulty(),
                     q.getCorrectAnswer(), q.getContent());
+        }
+        // 查看解析（含答案解析）
+        while (true) {
+            int viewId = ConsoleKit.readInt("输入题目编号查看解析（输入 0 返回）：");
+            if (viewId == 0) {
+                return;
+            }
+            Question q = QUESTION_SERVICE.findById(viewId);
+            System.out.println(q.toDisplay());
+            System.out.println("正确答案：" + q.getCorrectAnswer());
+            System.out.println("解析：" + (q.getAnalysis() == null || q.getAnalysis().isEmpty()
+                    ? "（暂无解析）" : q.getAnalysis()));
         }
     }
 
@@ -129,9 +146,10 @@ public final class QuestionConsole {
         String answer = ConsoleKit.readLineOrDefault("正确答案：", old.getCorrectAnswer()).toUpperCase();
         double score = ConsoleKit.readIntOrDefault("分值：", (int) old.getScore());
         int difficulty = ConsoleKit.readIntRangeOrDefault("难度（1-3）：", old.getDifficulty());
+        String analysis = ConsoleKit.readLineOrDefault("解析：", old.getAnalysis());
 
         Question question = QuestionFactory.create(old.getQuestionType(), content, options,
-                answer, score, difficulty);
+                answer, score, difficulty, analysis);
         question.setQuestionId(id);
         QUESTION_SERVICE.update(question);
         System.out.println("修改成功。");
@@ -147,5 +165,24 @@ public final class QuestionConsole {
         }
         QUESTION_SERVICE.delete(id);
         System.out.println("删除成功。");
+    }
+
+    /** 批量导入题目（UTF-8 文本文件，每行一题） */
+    private static void importQuestions(User teacher) {
+        System.out.println("---------- 批量导入题目 ----------");
+        System.out.println("格式：每行一题，用 | 分隔，共 10 列：");
+        System.out.println("  题型|题干|选项A|选项B|选项C|选项D|正确答案|分值|难度|解析");
+        System.out.println("  题型支持 SINGLE/MULTIPLE/JUDGE（或 单选/多选/判断）；# 开头为注释行。");
+        System.out.println("  示例：SINGLE|Java 的创始人是谁？|高斯林|盖茨|乔布斯|马斯克|A|5|1|Java 之父是詹姆斯·高斯林。");
+        System.out.println("  示例文件可参考项目根目录 questions_import_sample.txt");
+        String filePath = ConsoleKit.readLine("导入文件路径（相对项目根目录）：");
+        if (filePath.isEmpty()) {
+            throw new BizException("文件路径不能为空");
+        }
+        QuestionService.ImportResult result = QUESTION_SERVICE.importFromFile(filePath, teacher.getUserId());
+        System.out.println("导入完成：成功 " + result.getSuccess() + " 条，失败 " + result.getErrors().size() + " 条。");
+        for (String error : result.getErrors()) {
+            System.out.println("  [失败] " + error);
+        }
     }
 }

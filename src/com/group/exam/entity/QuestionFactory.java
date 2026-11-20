@@ -28,6 +28,23 @@ public final class QuestionFactory {
      */
     public static Question create(String type, String content, List<String> options,
                                   String correctAnswer, double score, int difficulty) {
+        return create(type, content, options, correctAnswer, score, difficulty, null);
+    }
+
+    /**
+     * 根据题型创建题目对象（含答案解析）。
+     *
+     * @param type          题型（SINGLE / MULTIPLE / JUDGE）
+     * @param content       题干
+     * @param options       选项列表（判断题为 null）
+     * @param correctAnswer 正确答案
+     * @param score         分值
+     * @param difficulty    难度 1-3
+     * @param analysis      答案解析（可为 null）
+     * @return 对应题型的具体子类对象
+     */
+    public static Question create(String type, String content, List<String> options,
+                                  String correctAnswer, double score, int difficulty, String analysis) {
         Question question;
         if (Constants.TYPE_SINGLE.equals(type)) {
             SingleChoiceQuestion single = new SingleChoiceQuestion();
@@ -47,6 +64,7 @@ public final class QuestionFactory {
         question.setCorrectAnswer(correctAnswer == null ? "" : correctAnswer.trim().toUpperCase());
         question.setScore(score);
         question.setDifficulty(difficulty);
+        question.setAnalysis(analysis == null ? null : analysis.trim());
         return question;
     }
 

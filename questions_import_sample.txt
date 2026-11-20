@@ -1,0 +1,11 @@
+# 在线考试系统题目批量导入示例文件
+# 格式：每行一题，用 | 分隔，共 10 列：
+#   题型|题干|选项A|选项B|选项C|选项D|正确答案|分值|难度|解析
+# 题型支持：SINGLE（单选）/ MULTIPLE（多选）/ JUDGE（判断），也支持中文 单选/多选/判断
+# # 开头为注释行，空行忽略；文件编码必须为 UTF-8
+# 使用方式：教师端 -> 题库管理 -> 5.批量导入题目，输入本文件路径（如 questions_import_sample.txt）
+
+SINGLE|Java 中用于定义抽象类的关键字是？|abstract|interface|static|final|A|5|1|abstract 用于定义抽象类，interface 用于定义接口。
+SINGLE|下列哪个集合不允许存储重复元素？|ArrayList|LinkedList|HashSet|HashMap|C|5|1|HashSet 基于哈希表实现，元素不允许重复。
+MULTIPLE|下列哪些是 Java 的基本数据类型？|int|String|boolean|double|ACD|10|2|Java 基本数据类型共 8 种，String 是引用类型。
+JUDGE|Java 中接口可以包含抽象方法。| | | | |T|5|1|接口中的抽象方法由实现类实现。

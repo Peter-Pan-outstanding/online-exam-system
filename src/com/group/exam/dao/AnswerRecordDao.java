@@ -27,6 +27,7 @@ public class AnswerRecordDao extends BaseDao {
             r.setScore(rs.getDouble("score"));
             r.setQuestionContent(rs.getString("question_content"));
             r.setCorrectAnswer(rs.getString("correct_answer"));
+            r.setAnalysis(rs.getString("analysis"));
             return r;
         }
     };
@@ -54,10 +55,22 @@ public class AnswerRecordDao extends BaseDao {
     public List<AnswerRecord> findBySessionId(int sessionId) throws SQLException {
         return queryList(
                 "SELECT r." + BASE_COLUMNS.replaceAll(", ", ", r.") + ", q.content AS question_content, "
-                        + "q.correct_answer AS correct_answer "
+                        + "q.correct_answer AS correct_answer, q.analysis AS analysis "
                         + "FROM answer_record r "
                         + "JOIN question q ON r.question_id = q.question_id "
                         + "WHERE r.session_id = ? ORDER BY r.record_id",
                 MAPPER, sessionId);
+    }
+
+    public List<AnswerRecord> findWrongByStudent(int studentId) throws SQLException {
+        return queryList(
+                "SELECT r." + BASE_COLUMNS.replaceAll(", ", ", r.") + ", q.content AS question_content, "
+                        + "q.correct_answer AS correct_answer, q.analysis AS analysis "
+                        + "FROM answer_record r "
+                        + "JOIN exam_session s ON r.session_id = s.session_id "
+                        + "JOIN question q ON r.question_id = q.question_id "
+                        + "WHERE s.student_id = ? AND r.is_correct = 0 "
+                        + "ORDER BY r.question_id, r.record_id",
+                MAPPER, studentId);
     }
 }

@@ -21,7 +21,7 @@ public class QuestionDao extends BaseDao {
 
     private static final String BASE_COLUMNS =
             "question_id, question_type, content, option_a, option_b, option_c, option_d, "
-                    + "correct_answer, score, difficulty, created_by, created_at";
+                    + "correct_answer, score, difficulty, analysis, created_by, created_at";
 
     private static final RowMapper<Question> MAPPER = new RowMapper<Question>() {
         @Override
@@ -37,7 +37,8 @@ public class QuestionDao extends BaseDao {
                     options,
                     rs.getString("correct_answer"),
                     rs.getDouble("score"),
-                    rs.getInt("difficulty"));
+                    rs.getInt("difficulty"),
+                    rs.getString("analysis"));
             q.setQuestionId(rs.getInt("question_id"));
             q.setCreatedBy(rs.getInt("created_by"));
             q.setCreatedAt(rs.getString("created_at"));
@@ -52,10 +53,10 @@ public class QuestionDao extends BaseDao {
         List<String> options = extractOptions(q);
         return insertReturnKey(
                 "INSERT INTO question (question_type, content, option_a, option_b, option_c, option_d, "
-                        + "correct_answer, score, difficulty, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        + "correct_answer, score, difficulty, analysis, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 q.getQuestionType(), q.getContent(), options.get(0), options.get(1),
                 options.get(2), options.get(3), q.getCorrectAnswer(),
-                q.getScore(), q.getDifficulty(), createdBy);
+                q.getScore(), q.getDifficulty(), q.getAnalysis(), createdBy);
     }
 
     /**
@@ -65,9 +66,9 @@ public class QuestionDao extends BaseDao {
         List<String> options = extractOptions(q);
         return update(
                 "UPDATE question SET content = ?, option_a = ?, option_b = ?, option_c = ?, option_d = ?, "
-                        + "correct_answer = ?, score = ?, difficulty = ? WHERE question_id = ?",
+                        + "correct_answer = ?, score = ?, difficulty = ?, analysis = ? WHERE question_id = ?",
                 q.getContent(), options.get(0), options.get(1), options.get(2), options.get(3),
-                q.getCorrectAnswer(), q.getScore(), q.getDifficulty(), q.getQuestionId());
+                q.getCorrectAnswer(), q.getScore(), q.getDifficulty(), q.getAnalysis(), q.getQuestionId());
     }
 
     /**
@@ -142,5 +143,22 @@ public class QuestionDao extends BaseDao {
             options.add(null);
         }
         return options;
+    }
+
+    /** 将已通过校验的导入行批量写入。 */
+    public void batchInsert(List<Question> questions, int createdBy) throws SQLException {
+        if (questions.isEmpty()) {
+            return;
+        }
+        List<Object[]> rows = new ArrayList<Object[]>();
+        for (Question q : questions) {
+            List<String> options = extractOptions(q);
+            rows.add(new Object[] {q.getQuestionType(), q.getContent(), options.get(0), options.get(1),
+                    options.get(2), options.get(3), q.getCorrectAnswer(), q.getScore(),
+                    q.getDifficulty(), q.getAnalysis(), createdBy});
+        }
+        batchUpdate("INSERT INTO question (question_type, content, option_a, option_b, option_c, option_d, "
+                + "correct_answer, score, difficulty, analysis, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                rows);
     }
 }

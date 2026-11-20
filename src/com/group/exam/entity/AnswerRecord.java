@@ -16,6 +16,8 @@ public class AnswerRecord {
     private String questionContent;
     /** 展示用：正确答案（联表查询填充） */
     private String correctAnswer;
+    /** 展示用：答案解析（联表查询填充） */
+    private String analysis;
 
     public int getRecordId() {
         return recordId;
@@ -79,5 +81,13 @@ public class AnswerRecord {
 
     public void setCorrectAnswer(String correctAnswer) {
         this.correctAnswer = correctAnswer;
+    }
+
+    public String getAnalysis() {
+        return analysis;
+    }
+
+    public void setAnalysis(String analysis) {
+        this.analysis = analysis;
     }
 }

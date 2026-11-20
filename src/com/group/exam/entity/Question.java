@@ -13,6 +13,7 @@ public abstract class Question {
     private String correctAnswer;
     private double score;
     private int difficulty;
+    private String analysis;
     private int createdBy;
     private String createdAt;
 
@@ -82,6 +83,14 @@ public abstract class Question {
 
     public void setDifficulty(int difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public String getAnalysis() {
+        return analysis;
+    }
+
+    public void setAnalysis(String analysis) {
+        this.analysis = analysis;
     }
 
     public int getCreatedBy() {
